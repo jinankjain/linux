@@ -37,7 +37,6 @@
 #include <asm/io_apic.h>
 #include <asm/svm.h>
 #include <asm/sev.h>
-#include <asm/sev-snp.h>
 #include <asm/realmode.h>
 #include <asm/e820/api.h>
 

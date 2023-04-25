@@ -119,6 +119,7 @@ extern u64 native_apic_icr_read(void);
 
 static inline bool apic_is_x2apic_enabled(void)
 {
+	return true;
 	u64 msr;
 
 	if (rdmsrl_safe(MSR_IA32_APICBASE, &msr))
@@ -253,7 +254,8 @@ extern void __init check_x2apic(void);
 extern void x2apic_setup(void);
 static inline int x2apic_enabled(void)
 {
-	return boot_cpu_has(X86_FEATURE_X2APIC) && apic_is_x2apic_enabled();
+//	return boot_cpu_has(X86_FEATURE_X2APIC) && apic_is_x2apic_enabled();
+	return true;
 }
 
 #define x2apic_supported()	(boot_cpu_has(X86_FEATURE_X2APIC))

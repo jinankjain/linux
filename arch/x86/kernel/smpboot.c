@@ -707,7 +707,7 @@ static void impress_friends(void)
 		bogosum/(500000/HZ),
 		(bogosum/(5000/HZ))%100);
 
-	pr_debug("Before bogocount - setting activated=1\n");
+	pr_info("Before bogocount - setting activated=1\n");
 }
 
 void __inquire_remote_apic(int apicid)
@@ -1475,7 +1475,7 @@ void __init calculate_max_logical_packages(void)
 
 void __init native_smp_cpus_done(unsigned int max_cpus)
 {
-	pr_debug("Boot done\n");
+	printk("Boot done\n");
 
 	calculate_max_logical_packages();
 
@@ -1487,7 +1487,9 @@ void __init native_smp_cpus_done(unsigned int max_cpus)
 
 	nmi_selftest();
 	impress_friends();
+	printk("JJJJJJJJJJJJJJ Coming to mtrr_aps_init\n");
 	mtrr_aps_init();
+	printk("JJJJJJJJJJJJJJ Done Coming to mtrr_aps_init\n");
 }
 
 static int __initdata setup_possible_cpus = -1;

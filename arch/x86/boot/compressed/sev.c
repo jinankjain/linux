@@ -73,6 +73,7 @@ static inline void sev_es_wr_ghcb_msr(u64 val)
 	struct msr m;
 
 	m.q = val;
+
 	boot_wrmsr(MSR_AMD64_SEV_ES_GHCB, &m);
 }
 
@@ -196,8 +197,9 @@ static bool early_setup_ghcb(void)
 	inat_init_tables();
 
 	/* SNP guest requires the GHCB GPA must be registered */
-	if (sev_snp_enabled())
+	if (sev_snp_enabled()) {
 		snp_register_ghcb_early(__pa(&boot_ghcb_page));
+	}
 
 	return true;
 }

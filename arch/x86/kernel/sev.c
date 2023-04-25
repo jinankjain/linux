@@ -702,9 +702,9 @@ static noinstr struct ghcb *__sev_get_ghcb(struct ghcb_state *state)
 	/* SEV-SNP guest requires that GHCB must be registered before using it. */
 	if (!data->ghcb_registered) {
 		if (cc_platform_has(CC_ATTR_GUEST_SEV_SNP)) {
-printk("############## %s Registering ghcbv for first time %llx\n", __func__, __pa(&boot_ghcb_page));
+printk("############## %s Registering ghcbv for first time %llx\n", __func__, __pa(ghcb));
 			snp_register_ghcb_early(__pa(ghcb));
-printk("############## %s Done Registering ghcbv for first time %llx\n", __func__, __pa(&boot_ghcb_page));
+printk("############## %s Done Registering ghcbv for first time %llx\n", __func__, __pa(ghcb));
 			sev_snp_setup_hv_doorbell_page(ghcb);
 		} else {
 			sev_es_wr_ghcb_msr(__pa(ghcb));
@@ -724,6 +724,7 @@ static void sev_snp_setup_hv_doorbell_page(struct ghcb *ghcb)
 	vc_ghcb_invalidate(ghcb);
 	ret = vmgexit_hv_doorbell_page(ghcb,
 			SVM_VMGEXIT_SET_HV_DOORBELL_PAGE, pa);
+	printk("********************* exit_info_1: %lx\n", ghcb->save.sw_exit_info_1);
 	if (ret != ES_OK)
 		panic("SEV-SNP: failed to set up #HV doorbell page");
 }
@@ -1471,9 +1472,9 @@ static void snp_register_per_cpu_ghcb(void)
 
 	data = this_cpu_read(runtime_data);
 	ghcb = &data->ghcb_page;
-printk("############## %s Registering ghcbv for first time %llx\n", __func__, __pa(&boot_ghcb_page));
+printk("############## %s Registering ghcbv for first time %llx\n", __func__, __pa(ghcb));
 	snp_register_ghcb_early(__pa(ghcb));
-printk("############## %s Done Registering ghcbv for first time %llx\n", __func__, __pa(&boot_ghcb_page));
+printk("############## %s Done Registering ghcbv for first time %llx\n", __func__, __pa(ghcb));
 }
 
 void setup_ghcb(void)

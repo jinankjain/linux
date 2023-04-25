@@ -240,6 +240,7 @@ static u8 ap_start_stack[PAGE_SIZE] __aligned(PAGE_SIZE);
 
 int hv_snp_boot_ap(int cpu, unsigned long start_ip)
 {
+	printk("\n \nLLLLLLLLL Awesome coming here\n");
 	struct vmcb_save_area *vmsa = (struct vmcb_save_area *)
 		__get_free_page(GFP_KERNEL | __GFP_ZERO);
 	struct desc_ptr gdtr;
@@ -671,12 +672,15 @@ static void __init ms_hyperv_init_platform(void)
 		 * and legacy APIC page read/write. Switch to hv apic here.
 		 */
 		disable_ioapic_support();
-		hv_apic_init();
+		//hv_apic_init();
 
 		processor_count = *(u32 *)__va(EN_SEV_SNP_PROCESSOR_INFO_ADDR);
+		printk("HHHHHHHHHHHHHHHHHH Realllly great: %lx\n", processor_count);
 
 		entry = (struct memory_map_entry *)(__va(EN_SEV_SNP_PROCESSOR_INFO_ADDR)
 				+ sizeof(struct memory_map_entry));
+
+		printk("OOOOOOOOOOOOO num pages: %lx\n", entry->numpages);
 
 		for (; entry->numpages != 0; entry++) {
 			e820_entry = &e820_table->entries[e820_table->nr_entries - 1];

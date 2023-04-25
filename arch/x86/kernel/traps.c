@@ -1507,4 +1507,5 @@ void __init trap_init(void)
 
 	/* Init #HV doorbell pages when running as an SEV-SNP guest */
 	sev_snp_init_hv_handling();
+	printk("********* Done with everything\n");
 }

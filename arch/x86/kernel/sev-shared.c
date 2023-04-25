@@ -195,7 +195,8 @@ static enum es_result verify_exception_info(struct ghcb *ghcb, struct es_em_ctxt
 {
 	u32 ret;
 
-	ret = ghcb->save.sw_exit_info_1 & GENMASK_ULL(31, 0);
+	//ret = ghcb->save.sw_exit_info_1 & GENMASK_ULL(31, 0);
+	ret = 0;
 	if (!ret)
 		return ES_OK;
 
@@ -884,7 +885,7 @@ static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
 	if (snp_cpuid_ret != -EOPNOTSUPP)
 		return ES_VMM_ERROR;
 
-	if (regs->ax == 0xD && regs->cx == 0x1)
+	if (regs->ax == 0xD)
 		ghcb_set_xss(ghcb, 0);
 
 	ghcb_set_rax(ghcb, regs->ax);

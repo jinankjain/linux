@@ -44,10 +44,13 @@ static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
 	u64 output_address = output ? virt_to_phys(output) : 0;
 	u64 hv_status;
 
-	printk("&&&&&&&&&&&&& Crassssssshing after coming into this\n");
+	printk("&&&&&&&&&&&&& Crassssssshing after coming into this 1\n");
+	//dump_stack();
 
 #ifdef CONFIG_X86_64
-	if (hv_isolation_type_en_snp()) {
+	//if (hv_isolation_type_en_snp()) {
+	if (true) {
+		printk("&&&&&&&&&&&&& Crassssssshing after coming into this 2\n");
 		__asm__ __volatile__("mov %4, %%r8\n"
 				"vmmcall"
 				: "=a" (hv_status), ASM_CALL_CONSTRAINT,
@@ -55,9 +58,10 @@ static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
 				:  "r" (output_address)
 				: "cc", "memory", "r8", "r9", "r10", "r11");
 	} else {
+		printk("&&&&&&&&&&&&& Crassssssshing after coming into this 3\n");
 		if (!hv_hypercall_pg)
 			return U64_MAX;
-
+		printk("&&&&&&&&&&&&& Crassssssshing after coming into this 4\n");
 		__asm__ __volatile__("mov %4, %%r8\n"
 				CALL_NOSPEC
 				: "=a" (hv_status), ASM_CALL_CONSTRAINT,

@@ -173,14 +173,14 @@ acpi_ns_walk_namespace(acpi_object_type type,
 			return_ACPI_STATUS(AE_NO_NAMESPACE);
 		}
 	}
-
+	//printk("-------------------------------- acpi_ns_walk_namespace: 0\n");
 	/* Null child means "get first node" */
 
 	parent_node = start_node;
 	child_node = acpi_ns_get_next_node(parent_node, NULL);
 	child_type = ACPI_TYPE_ANY;
 	level = 1;
-
+	//printk("-------------------------------- acpi_ns_walk_namespace: 1\n");
 	/*
 	 * Traverse the tree of nodes until we bubble back up to where we
 	 * started. When Level is zero, the loop is done because we have
@@ -271,7 +271,7 @@ acpi_ns_walk_namespace(acpi_object_type type,
 				return_ACPI_STATUS(status);
 			}
 		}
-
+		//printk("-------------------------------- acpprintk("-------------------------------- acpi_get_devices: 2\n");i_ns_walk_namespace: 2\n");
 		/*
 		 * Depth first search: Attempt to go down another level in the
 		 * namespace if we are allowed to. Don't go any further if we have
@@ -291,14 +291,14 @@ acpi_ns_walk_namespace(acpi_object_type type,
 				continue;
 			}
 		}
-
+		//printk("-------------------------------- acpi_ns_walk_namespace: 3\n");
 		/* No more children, re-visit this node */
 
 		if (!node_previously_visited) {
 			node_previously_visited = TRUE;
 			continue;
 		}
-
+		//printk("-------------------------------- acpi_ns_walk_namespace: 4\n");
 		/* No more children, visit peers */
 
 		child_node = acpi_ns_get_next_node(parent_node, child_node);
@@ -319,6 +319,7 @@ acpi_ns_walk_namespace(acpi_object_type type,
 
 			node_previously_visited = TRUE;
 		}
+		//printk("-------------------------------- acpi_ns_walk_namespace: 5\n");
 	}
 
 	/* Complete walk, not terminated by user function */

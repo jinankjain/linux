@@ -635,9 +635,12 @@ static int __init sev_guest_probe(struct platform_device *pdev)
 	void __iomem *mapping;
 	int ret;
 
+
+    printk("%s %d", __func__, __LINE__);
 	if (!dev->platform_data)
 		return -ENODEV;
 
+    printk("%s %d", __func__, __LINE__);
 	data = (struct sev_guest_platform_data *)dev->platform_data;
 	mapping = ioremap_encrypted(data->secrets_gpa, PAGE_SIZE);
 	if (!mapping)

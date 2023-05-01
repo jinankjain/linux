@@ -1287,10 +1287,11 @@ static int __init acpi_bus_init(void)
 {
 	int result;
 	acpi_status status;
-
+	//printk("-------------------------------- acpi_bus_init: 0\n");
 	acpi_os_initialize1();
 
 	status = acpi_load_tables();
+	//printk("-------------------------------- acpi_bus_init: 1");
 	if (ACPI_FAILURE(status)) {
 		pr_err("Unable to load the System Description Tables\n");
 		goto error1;
@@ -1306,30 +1307,32 @@ static int __init acpi_bus_init(void)
 	 * Do that before calling acpi_initialize_objects() which may trigger EC
 	 * address space accesses.
 	 */
+	
+	//printk("-------------------------------- acpi_bus_init: 2\n");
 	acpi_ec_ecdt_probe();
-
+	//printk("-------------------------------- acpi_bus_init: 3\n");
 	status = acpi_enable_subsystem(ACPI_NO_ACPI_ENABLE);
 	if (ACPI_FAILURE(status)) {
 		pr_err("Unable to start the ACPI Interpreter\n");
 		goto error1;
 	}
-
+	//printk("-------------------------------- acpi_bus_init: 4\n");
 	status = acpi_initialize_objects(ACPI_FULL_INITIALIZATION);
 	if (ACPI_FAILURE(status)) {
 		pr_err("Unable to initialize ACPI objects\n");
 		goto error1;
 	}
-
+	//printk("-------------------------------- acpi_bus_init: 5\n");
 	/* Set capability bits for _OSC under processor scope */
 	acpi_early_processor_osc();
-
+	//printk("-------------------------------- acpi_bus_init: 6\n");
 	/*
 	 * _OSC method may exist in module level code,
 	 * so it must be run after ACPI_FULL_INITIALIZATION
 	 */
 	acpi_bus_osc_negotiate_platform_control();
 	acpi_bus_osc_negotiate_usb_control();
-
+	//printk("-------------------------------- acpi_bus_init: 7\n");
 	/*
 	 * _PDC control method may load dynamic SSDT tables,
 	 * and we need to install the table handler before that.
@@ -1337,15 +1340,16 @@ static int __init acpi_bus_init(void)
 	status = acpi_install_table_handler(acpi_bus_table_handler, NULL);
 
 	acpi_sysfs_init();
-
+	//printk("-------------------------------- acpi_bus_init: 8\n");
 	acpi_early_processor_set_pdc();
-
+	//printk("-------------------------------- acpi_bus_init: 8.1\n");
 	/*
 	 * Maybe EC region is required at bus_scan/acpi_get_devices. So it
 	 * is necessary to enable it as early as possible.
 	 */
+	//printk("-------------------------------- acpi_bus_init: 8.2\n");
 	acpi_ec_dsdt_probe();
-
+	//printk("-------------------------------- acpi_bus_init: 8.3\n");
 	pr_info("Interpreter enabled\n");
 
 	/* Initialize sleep structures */
@@ -1354,6 +1358,7 @@ static int __init acpi_bus_init(void)
 	/*
 	 * Get the system interrupt model and evaluate \_PIC.
 	 */
+	//printk("-------------------------------- acpi_bus_init: 9\n");
 	result = acpi_bus_init_irq();
 	if (result)
 		goto error1;
@@ -1373,8 +1378,9 @@ static int __init acpi_bus_init(void)
 	 * Create the top ACPI proc directory
 	 */
 	acpi_root_dir = proc_mkdir(ACPI_BUS_FILE_ROOT, NULL);
-
+	//printk("-------------------------------- acpi_bus_init: 10\n");
 	result = bus_register(&acpi_bus_type);
+	//printk("-------------------------------- acpi_bus_init: 11\n");
 	if (!result)
 		return 0;
 

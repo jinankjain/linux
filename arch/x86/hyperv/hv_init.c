@@ -526,29 +526,29 @@ void __init hyperv_init(void)
 	old_setup_percpu_clockev = x86_init.timers.setup_percpu_clockev;
 	x86_init.timers.setup_percpu_clockev = hv_stimer_setup_percpu_clockev;
 
-	// hv_apic_init();
+	//hv_apic_init();
 
-	// while (true) {}
+	//while (true) {}
 
 	x86_init.pci.arch_init = hv_pci_init;
 
-	printk("****** Coming 1\n");
+	//printk("****** Coming 1\n");
 
 	register_syscore_ops(&hv_syscore_ops);
 
 	hyperv_init_cpuhp = cpuhp;
 
-	printk("****** Coming 2\n");
+	//printk("****** Coming 2\n");
 
 	if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_ACCESS_PARTITION_ID)
 		hv_get_partition_id();
 
 
-	printk("****** Coming 3\n");
+	//printk("****** Coming 3\n");
 
 	BUG_ON(hv_root_partition && hv_current_partition_id == ~0ull);
 
-	printk("****** Coming 4\n");
+	//printk("****** Coming 4\n");
 
 #ifdef CONFIG_PCI_MSI
 	/*
@@ -577,7 +577,7 @@ void __init hyperv_init(void)
 #endif
 	/* Find the current VTL */
 	//ms_hyperv.vtl = get_current_vtl();
-	printk("****** Coming 7\n");
+	printk("****** Coming 7 current vtl : %u\n", get_current_vtl());
 	return;
 
 clean_guest_os_id:

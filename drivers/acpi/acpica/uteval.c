@@ -46,19 +46,21 @@ acpi_ut_evaluate_object(struct acpi_namespace_node *prefix_node,
 	ACPI_FUNCTION_TRACE(ut_evaluate_object);
 
 	/* Allocate the evaluation information block */
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	info = ACPI_ALLOCATE_ZEROED(sizeof(struct acpi_evaluate_info));
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if (!info) {
 		return_ACPI_STATUS(AE_NO_MEMORY);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	info->prefix_node = prefix_node;
 	info->relative_pathname = path;
 
 	/* Evaluate the object/method */
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	status = acpi_ns_evaluate(info);
 	if (ACPI_FAILURE(status)) {
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		if (status == AE_NOT_FOUND) {
 			ACPI_DEBUG_PRINT((ACPI_DB_EXEC,
 					  "[%4.4s.%s] was not found\n",
@@ -68,13 +70,14 @@ acpi_ut_evaluate_object(struct acpi_namespace_node *prefix_node,
 			ACPI_ERROR_METHOD("Method execution failed",
 					  prefix_node, path, status);
 		}
-
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		goto cleanup;
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Did we get a return object? */
 
 	if (!info->return_object) {
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		if (expected_return_btypes) {
 			ACPI_ERROR_METHOD("No object was returned from",
 					  prefix_node, path, AE_NOT_EXIST);
@@ -84,7 +87,7 @@ acpi_ut_evaluate_object(struct acpi_namespace_node *prefix_node,
 
 		goto cleanup;
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Map the return object type to the bitmapped type */
 
 	switch ((info->return_object)->common.type) {
@@ -113,7 +116,7 @@ acpi_ut_evaluate_object(struct acpi_namespace_node *prefix_node,
 		return_btype = 0;
 		break;
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if ((acpi_gbl_enable_interpreter_slack) && (!expected_return_btypes)) {
 		/*
 		 * We received a return object, but one was not expected. This can
@@ -122,11 +125,12 @@ acpi_ut_evaluate_object(struct acpi_namespace_node *prefix_node,
 		 */
 		acpi_ut_remove_reference(info->return_object);
 		goto cleanup;
-	}
-
+	}	
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Is the return object one of the expected types? */
 
 	if (!(expected_return_btypes & return_btype)) {
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		ACPI_ERROR_METHOD("Return object type is incorrect",
 				  prefix_node, path, AE_TYPE);
 
@@ -219,11 +223,14 @@ acpi_ut_execute_STA(struct acpi_namespace_node *device_node, u32 * flags)
 	acpi_status status;
 
 	ACPI_FUNCTION_TRACE(ut_execute_STA);
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	status = acpi_ut_evaluate_object(device_node, METHOD_NAME__STA,
 					 ACPI_BTYPE_INTEGER, &obj_desc);
+					 //printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if (ACPI_FAILURE(status)) {
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		if (AE_NOT_FOUND == status) {
+			//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 			/*
 			 * if _STA does not exist, then (as per the ACPI specification),
 			 * the returned flags will indicate that the device is present,
@@ -239,14 +246,15 @@ acpi_ut_execute_STA(struct acpi_namespace_node *device_node, u32 * flags)
 
 		return_ACPI_STATUS(status);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Extract the status flags */
 
 	*flags = (u32) obj_desc->integer.value;
 
 	/* On exit, we must delete the return object */
-
+	
 	acpi_ut_remove_reference(obj_desc);
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	return_ACPI_STATUS(status);
 }
 

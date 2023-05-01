@@ -192,10 +192,13 @@ static void __init processor_dmi_check(void)
 
 void __init acpi_early_processor_set_pdc(void)
 {
+	//printk("-------------------------------- acpi_early_processor_set_pdc: 1\n");
 	processor_dmi_check();
-
+	//printk("-------------------------------- acpi_early_processor_set_pdc: 2\n");
 	acpi_walk_namespace(ACPI_TYPE_PROCESSOR, ACPI_ROOT_OBJECT,
 			    ACPI_UINT32_MAX,
 			    early_init_pdc, NULL, NULL, NULL);
+	//printk("-------------------------------- acpi_early_processor_set_pdc: 3\n");
 	acpi_get_devices(ACPI_PROCESSOR_DEVICE_HID, early_init_pdc, NULL, NULL);
+	//printk("-------------------------------- acpi_early_processor_set_pdc: 4\n");
 }

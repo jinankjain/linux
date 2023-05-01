@@ -778,6 +778,7 @@ static u64 __init get_secrets_page(void)
 	struct cc_blob_sev_info info;
 	void *map;
 
+    printk("%s %d\n", __func__, __LINE__);
 	/*
 	 * The CC blob contains the address of the secrets page, check if the
 	 * blob is present.
@@ -785,18 +786,22 @@ static u64 __init get_secrets_page(void)
 	if (!pa_data)
 		return 0;
 
+    printk("%s %d\n", __func__, __LINE__);
 	map = early_memremap(pa_data, sizeof(info));
 	if (!map) {
+    printk("%s %d\n", __func__, __LINE__);
 		pr_err("Unable to locate SNP secrets page: failed to map the Confidential Computing blob.\n");
 		return 0;
 	}
 	memcpy(&info, map, sizeof(info));
 	early_memunmap(map, sizeof(info));
 
+    printk("%s %d\n", __func__, __LINE__);
 	/* smoke-test the secrets page passed */
 	if (!info.secrets_phys || info.secrets_len != PAGE_SIZE)
 		return 0;
 
+    printk("%s %d\n", __func__, __LINE__);
 	return info.secrets_phys;
 }
 
@@ -2555,20 +2560,25 @@ static int __init snp_init_platform_device(void)
 	struct sev_guest_platform_data data;
 	u64 gpa;
 
+    printk("%s %d\n", __func__, __LINE__);
 	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
 		return -ENODEV;
 
+    printk("%s %d\n", __func__, __LINE__);
 	gpa = get_secrets_page();
 	if (!gpa)
 		return -ENODEV;
 
+    printk("%s %d\n", __func__, __LINE__);
 	data.secrets_gpa = gpa;
 	if (platform_device_add_data(&sev_guest_device, &data, sizeof(data)))
 		return -ENODEV;
 
+    printk("%s %d\n", __func__, __LINE__);
 	if (platform_device_register(&sev_guest_device))
 		return -ENODEV;
 
+    printk("%s %d\n", __func__, __LINE__);
 	pr_info("SNP guest platform device initialized.\n");
 	return 0;
 }

@@ -474,11 +474,15 @@ out:
 
 int __init early_set_memory_decrypted(unsigned long vaddr, unsigned long size)
 {
+	//unsigned long pfn = __pa(vaddr) >> PAGE_SHIFT;
+	//printk("---------------------------- early_set_memory_decrypted: %08lx\n", pfn);
 	return early_set_memory_enc_dec(vaddr, size, false);
 }
 
 int __init early_set_memory_encrypted(unsigned long vaddr, unsigned long size)
 {
+	//unsigned long pfn = __pa(vaddr) >> PAGE_SHIFT;
+	//printk("---------------------------- early_set_memory_encrypted: %08lx\n", pfn);
 	return early_set_memory_enc_dec(vaddr, size, true);
 }
 

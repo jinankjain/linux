@@ -716,7 +716,7 @@ static void hv_arch_irq_unmask(struct irq_data *data)
 				(1ULL << hv_cpu_number_to_vp_number(cpu));
 		}
 	}
-
+	printk("---------------------------------- hv_arch_irq_unmask");
 	res = hv_do_hypercall(HVCALL_RETARGET_INTERRUPT | (var_size << 17),
 			      params, NULL);
 

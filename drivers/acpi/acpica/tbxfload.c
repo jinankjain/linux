@@ -57,7 +57,7 @@ acpi_status ACPI_INIT_FUNCTION acpi_load_tables(void)
 	/* Load the namespace from the tables */
 
 	status = acpi_tb_load_namespace();
-
+	//printk("-------------------------------- acpi_load_tables: 1\n");
 	/* Don't let single failures abort the load */
 
 	if (status == AE_CTRL_TERMINATE) {
@@ -76,11 +76,13 @@ acpi_status ACPI_INIT_FUNCTION acpi_load_tables(void)
 	 *     operation_regions, buffer_fields, Buffers, and Packages.
 	 *
 	 */
+	//printk("-------------------------------- acpi_load_tables: 2\n");
 	status = acpi_ns_initialize_objects();
+	//printk("-------------------------------- acpi_load_tables: 3\n");
 	if (ACPI_SUCCESS(status)) {
 		acpi_gbl_namespace_initialized = TRUE;
 	}
-
+	//printk("-------------------------------- acpi_load_tables: 4\n");
 	return_ACPI_STATUS(status);
 }
 

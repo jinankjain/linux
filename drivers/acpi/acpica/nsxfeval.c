@@ -645,18 +645,18 @@ acpi_ns_get_device_callback(acpi_handle obj_handle,
 	u32 i;
 	u8 found;
 	int no_match;
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	status = acpi_ut_acquire_mutex(ACPI_MTX_NAMESPACE);
 	if (ACPI_FAILURE(status)) {
 		return (status);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	node = acpi_ns_validate_handle(obj_handle);
 	status = acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
 	if (ACPI_FAILURE(status)) {
 		return (status);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if (!node) {
 		return (AE_BAD_PARAMETER);
 	}
@@ -676,13 +676,14 @@ acpi_ns_get_device_callback(acpi_handle obj_handle,
 	 * not functioning (thus aborting the search on that branch).
 	 */
 	if (info->hid != NULL) {
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		status = acpi_ut_execute_HID(node, &hid);
 		if (status == AE_NOT_FOUND) {
 			return (AE_OK);
 		} else if (ACPI_FAILURE(status)) {
 			return (AE_CTRL_DEPTH);
 		}
-
+		//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		no_match = strcmp(hid->string, info->hid);
 		ACPI_FREE(hid);
 
@@ -691,13 +692,14 @@ acpi_ns_get_device_callback(acpi_handle obj_handle,
 			 * HID does not match, attempt match within the
 			 * list of Compatible IDs (CIDs)
 			 */
+			//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 			status = acpi_ut_execute_CID(node, &cid);
 			if (status == AE_NOT_FOUND) {
 				return (AE_OK);
 			} else if (ACPI_FAILURE(status)) {
 				return (AE_CTRL_DEPTH);
 			}
-
+			//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 			/* Walk the CID list */
 
 			found = FALSE;
@@ -710,7 +712,7 @@ acpi_ns_get_device_callback(acpi_handle obj_handle,
 					break;
 				}
 			}
-
+			//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 			ACPI_FREE(cid);
 			if (!found) {
 				return (AE_OK);
@@ -719,7 +721,7 @@ acpi_ns_get_device_callback(acpi_handle obj_handle,
 	}
 
 	/* Run _STA to determine if device is present */
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	status = acpi_ut_execute_STA(node, &flags);
 	if (ACPI_FAILURE(status)) {
 		return (AE_CTRL_DEPTH);
@@ -734,11 +736,12 @@ acpi_ns_get_device_callback(acpi_handle obj_handle,
 		 */
 		return (AE_CTRL_DEPTH);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* We have a valid device, invoke the user function */
 
 	status = info->user_function(obj_handle, nesting_level,
 				     info->context, return_value);
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	return (status);
 }
 
@@ -782,7 +785,7 @@ acpi_get_devices(const char *HID,
 	if (!user_function) {
 		return_ACPI_STATUS(AE_BAD_PARAMETER);
 	}
-
+	//printk("-------------------------------- acpi_get_devices: 0\n");
 	/*
 	 * We're going to call their callback from OUR callback, so we need
 	 * to know what it is, and their context parameter.
@@ -801,12 +804,12 @@ acpi_get_devices(const char *HID,
 	if (ACPI_FAILURE(status)) {
 		return_ACPI_STATUS(status);
 	}
-
+	//printk("-------------------------------- acpi_get_devices: 1\n");
 	status = acpi_ns_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
 					ACPI_UINT32_MAX, ACPI_NS_WALK_UNLOCK,
 					acpi_ns_get_device_callback, NULL,
 					&info, return_value);
-
+	//printk("-------------------------------- acpi_get_devices: 2\n");
 	(void)acpi_ut_release_mutex(ACPI_MTX_NAMESPACE);
 	return_ACPI_STATUS(status);
 }

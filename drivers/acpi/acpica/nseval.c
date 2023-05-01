@@ -48,7 +48,7 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 	if (!info) {
 		return_ACPI_STATUS(AE_BAD_PARAMETER);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if (!info->node) {
 		/*
 		 * Get the actual namespace node for the target object if we
@@ -65,7 +65,7 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 			return_ACPI_STATUS(status);
 		}
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/*
 	 * For a method alias, we must grab the actual method node so that
 	 * proper scoping context will be established before execution.
@@ -75,7 +75,7 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 		    ACPI_CAST_PTR(struct acpi_namespace_node,
 				  info->node->object);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Complete the info block initialization */
 
 	info->return_object = NULL;
@@ -92,12 +92,12 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 	    acpi_ut_match_predefined_method(info->node->name.ascii);
 
 	/* Get the full pathname to the object, for use in warning messages */
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	info->full_pathname = acpi_ns_get_normalized_pathname(info->node, TRUE);
 	if (!info->full_pathname) {
 		return_ACPI_STATUS(AE_NO_MEMORY);
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Optional object evaluation log */
 
 	ACPI_DEBUG_PRINT_RAW((ACPI_DB_EVALUATION,
@@ -125,25 +125,25 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 			info->param_count = ACPI_METHOD_NUM_ARGS;
 		}
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/*
 	 * For predefined names: Check that the declared argument count
 	 * matches the ACPI spec -- otherwise this is a BIOS error.
 	 */
 	acpi_ns_check_acpi_compliance(info->full_pathname, info->node,
 				      info->predefined);
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/*
 	 * For all names: Check that the incoming argument count for
 	 * this method/object matches the actual ASL/AML definition.
 	 */
 	acpi_ns_check_argument_count(info->full_pathname, info->node,
 				     info->param_count, info->predefined);
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* For predefined names: Typecheck all incoming arguments */
 
 	acpi_ns_check_argument_types(info);
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/*
 	 * Three major evaluation cases:
 	 *
@@ -253,14 +253,14 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 		status = AE_CTRL_RETURN_VALUE;	/* Always has a "return value" */
 		break;
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/*
 	 * For predefined names, check the return value against the ACPI
 	 * specification. Some incorrect return value types are repaired.
 	 */
 	(void)acpi_ns_check_return_value(info->node, info, info->param_count,
 					 status, &info->return_object);
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Check if there is a return value that must be dealt with */
 
 	if (status == AE_CTRL_RETURN_VALUE) {
@@ -284,7 +284,7 @@ acpi_status acpi_ns_evaluate(struct acpi_evaluate_info *info)
 			info->return_object = NULL;
 		}
 	}
-
+	//printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	ACPI_DEBUG_PRINT((ACPI_DB_NAMES,
 			  "*** Completed evaluation of object %s ***\n",
 			  info->relative_pathname));

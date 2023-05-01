@@ -254,7 +254,8 @@ extern void __init check_x2apic(void);
 extern void x2apic_setup(void);
 static inline int x2apic_enabled(void)
 {
-//	return boot_cpu_has(X86_FEATURE_X2APIC) && apic_is_x2apic_enabled();
+	//return boot_cpu_has(X86_FEATURE_X2APIC) && apic_is_x2apic_enabled();
+	//MUISLAM
 	return true;
 }
 

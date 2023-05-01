@@ -695,6 +695,7 @@ static void __init populate_initrd_image(char *err)
 
 static void __init do_populate_rootfs(void *unused, async_cookie_t cookie)
 {
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	/* Load the built in initramfs */
 	char *err = unpack_to_rootfs(__initramfs_start, __initramfs_size);
 	if (err)
@@ -707,8 +708,9 @@ static void __init do_populate_rootfs(void *unused, async_cookie_t cookie)
 		printk(KERN_INFO "Trying to unpack rootfs image as initramfs...\n");
 	else
 		printk(KERN_INFO "Unpacking initramfs...\n");
-
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	err = unpack_to_rootfs((char *)initrd_start, initrd_end - initrd_start);
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if (err) {
 #ifdef CONFIG_BLK_DEV_RAM
 		populate_initrd_image(err);
@@ -722,13 +724,17 @@ done:
 	 * If the initrd region is overlapped with crashkernel reserved region,
 	 * free only memory that is not part of crashkernel region.
 	 */
-	if (!do_retain_initrd && initrd_start && !kexec_free_initrd())
+	if (!do_retain_initrd && initrd_start && !kexec_free_initrd()) {
+		printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 		free_initrd_mem(initrd_start, initrd_end);
+	}
 	initrd_start = 0;
 	initrd_end = 0;
-
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	flush_delayed_fput();
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	task_work_run();
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 }
 
 static ASYNC_DOMAIN_EXCLUSIVE(initramfs_domain);
@@ -752,11 +758,15 @@ EXPORT_SYMBOL_GPL(wait_for_initramfs);
 
 static int __init populate_rootfs(void)
 {
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	initramfs_cookie = async_schedule_domain(do_populate_rootfs, NULL,
 						 &initramfs_domain);
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	usermodehelper_enable();
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	if (!initramfs_async)
 		wait_for_initramfs();
+	printk("--------------------------------  %s: %d\n", __func__, __LINE__);
 	return 0;
 }
 rootfs_initcall(populate_rootfs);

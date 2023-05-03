@@ -966,6 +966,50 @@ static struct cc_blob_sev_info *find_cc_blob_setup_data(struct boot_params *bp)
 	return NULL;
 }
 
+static void hv_sev_debugbreak(u32 val)
+{
+	u32 low, high;
+	val = ((val & (u32)0xf) << 12) | (u32)0xf03;
+	asm volatile ("rdmsr" : "=a" (low), "=d" (high) : "c" (0xc0010130));
+	asm volatile ("wrmsr\n\r"
+		      "rep; vmmcall\n\r"
+		      :: "c" (0xc0010130), "a" (val), "d" (0x0));
+	asm volatile ("wrmsr" :: "c" (0xc0010130), "a" (low), "d" (high));
+}
+
+static int hv_sev_printf(const char *buffer)
+{
+
+	int len = 0;
+	int idx;
+	int left;
+	u32 orig_low, orig_high;
+	u32 low, high;
+	int i =0;
+
+	while (buffer[i++] != NULL)
+		len++;
+
+
+	asm volatile ("rdmsr" : "=a" (orig_low), "=d" (orig_high) : "c" (0xc0010130));
+	for (idx = 0; idx < len; idx += 6) {
+		left = len - idx;
+		if (left > 6) left = 6;
+		low = 0xf03;
+		high = 0;
+		memcpy((char *)&low+2, &buffer[idx], left == 1 ? 1 : 2);
+		if (left > 2)
+			memcpy((char *)&high, &buffer[idx+2], left-2);
+		asm volatile ("wrmsr\n\r"
+				"rep; vmmcall\n\r"
+				:: "c" (0xc0010130), "a" (low), "d" (high));
+	}
+	asm volatile ("wrmsr" :: "c" (0xc0010130), "a" (orig_low), "d" (orig_high));
+
+
+
+	return len;
+}
 /*
  * Initialize the kernel's copy of the SNP CPUID table, and set up the
  * pointer that will be used to access it.
@@ -984,9 +1028,15 @@ static void __init setup_cpuid_table(const struct cc_blob_sev_info *cc_info)
 		sev_es_terminate(SEV_TERM_SET_LINUX, GHCB_TERM_CPUID);
 
 	cpuid_table_fw = (const struct snp_cpuid_table *)cc_info->cpuid_phys;
-	if (!cpuid_table_fw->count || cpuid_table_fw->count > SNP_CPUID_COUNT_MAX)
+	//hv_sev_debugbreak(100);
+	if (cpuid_table_fw->count == 37) while(true) {}
+	if (cpuid_table_fw->count || cpuid_table_fw->count > SNP_CPUID_COUNT_MAX)
+	{
+		//while(true) {}
 		sev_es_terminate(SEV_TERM_SET_LINUX, GHCB_TERM_CPUID);
-
+	}
+		
+	//while(true) {}
 	cpuid_table = snp_cpuid_get_table();
 	memcpy((void *)cpuid_table, cpuid_table_fw, sizeof(*cpuid_table));
 

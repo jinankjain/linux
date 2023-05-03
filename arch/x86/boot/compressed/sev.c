@@ -524,11 +524,19 @@ __visible void pvalidate_for_startup_64(struct boot_params *boot_params)
 	u64 init_end =
 		boot_params->hdr.pref_address + boot_params->hdr.init_size;
 	u8 i, nr_entries = boot_params->e820_entries;
-	u64 needed_end;
-
+	u64 needed_end;\
+	int rc;
+	unsigned long  vaddr = 0x800000;
 	if (!sev_snp_runtime_check())
 		return;
-
+	/*
+	rc = pvalidate(vaddr, RMP_PG_SIZE_4K, true);
+	int __ret_warn_on = !!(rc);
+	if (__ret_warn_on) {
+		while(true) {}
+		sev_es_terminate(SEV_TERM_SET_LINUX, GHCB_TERM_PVALIDATE);
+	} */
+		
 	for (i = 0; i < nr_entries; ++i) {
 		/* Pvalidate memory holes in e820 RAM entries. */
 		e820_entry = &boot_params->e820_table[i];

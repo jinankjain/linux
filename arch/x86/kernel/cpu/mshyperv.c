@@ -675,12 +675,9 @@ static void __init ms_hyperv_init_platform(void)
 		//hv_apic_init();
 
 		processor_count = *(u32 *)__va(EN_SEV_SNP_PROCESSOR_INFO_ADDR);
-		printk("HHHHHHHHHHHHHHHHHH Realllly great: %lx\n", processor_count);
 
 		entry = (struct memory_map_entry *)(__va(EN_SEV_SNP_PROCESSOR_INFO_ADDR)
 				+ sizeof(struct memory_map_entry));
-
-		printk("OOOOOOOOOOOOO num pages: %lx\n", entry->numpages);
 
 		for (; entry->numpages != 0; entry++) {
 			e820_entry = &e820_table->entries[e820_table->nr_entries - 1];

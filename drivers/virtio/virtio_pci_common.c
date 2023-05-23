@@ -43,7 +43,6 @@ bool vp_notify(struct virtqueue *vq)
 	/* we write the queue's selector into the notification register to
 	 * signal the other end */
 	iowrite16(vq->index, (void __iomem *)vq->priv);
-	printk("--------------- DDDDDDDDDDDDDDDDDDD: vp_notify ---------------");
 	return true;
 }
 

@@ -1487,9 +1487,7 @@ void __init native_smp_cpus_done(unsigned int max_cpus)
 
 	nmi_selftest();
 	impress_friends();
-	printk("JJJJJJJJJJJJJJ Coming to mtrr_aps_init\n");
 	mtrr_aps_init();
-	printk("JJJJJJJJJJJJJJ Done Coming to mtrr_aps_init\n");
 }
 
 static int __initdata setup_possible_cpus = -1;

@@ -671,7 +671,7 @@ static void __init ms_hyperv_init_platform(void)
 		 * Hyper-V SEV-SNP enlightened guest doesn't support ioapic
 		 * and legacy APIC page read/write. Switch to hv apic here.
 		 */
-		disable_ioapic_support();
+		//disable_ioapic_support();
 		//hv_apic_init();
 
 		processor_count = *(u32 *)__va(EN_SEV_SNP_PROCESSOR_INFO_ADDR);

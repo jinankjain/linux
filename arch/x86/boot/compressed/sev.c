@@ -199,7 +199,7 @@ static bool sev_snp_runtime_check(void)
 	return false;
 }
 
-static inline bool sev_snp_enabled(void)
+bool sev_snp_enabled(void)
 {
 	return sev_status & MSR_AMD64_SEV_SNP_ENABLED;
 }
@@ -247,9 +247,12 @@ void snp_set_page_shared(unsigned long paddr)
 
 static bool early_setup_ghcb(void)
 {
+	ghcb_printf("es0\n");
 	if (set_page_decrypted((unsigned long)&boot_ghcb_page))
 		return false;
 
+	//return false;
+///	ghcb_printf("es1\n");
 	/* Page is now mapped decrypted, clear it */
 	memset(&boot_ghcb_page, 0, sizeof(boot_ghcb_page));
 
@@ -322,22 +325,17 @@ void sev_es_shutdown_ghcb(void)
 	if (!boot_ghcb)
 		return;
 
-	ghcb_printf("s1\n");
-//	if (!sev_es_check_cpu_features())
-//		error("SEV-ES CPU Features missing.");
+	if (!sev_es_check_cpu_features())
+		error("SEV-ES CPU Features missing.");
 
 	/*
 	 * GHCB Page must be flushed from the cache and mapped encrypted again.
 	 * Otherwise the running kernel will see strange cache effects when
 	 * trying to use that page.
 	 */
-	ghcb_printf("s1\n");
-//	if (set_page_encrypted((unsigned long)&boot_ghcb_page)) {
-//		ghcb_printf("s2\n");
-//		error("Can't map GHCB page encrypted");
-//	}
+	if (set_page_encrypted((unsigned long)&boot_ghcb_page))
+		error("Can't map GHCB page encrypted");
 
-	ghcb_printf("s2\n");
 	/*
 	 * GHCB page is mapped encrypted again and flushed from the cache.
 	 * Mark it non-present now to catch bugs when #VC exceptions trigger
@@ -454,7 +452,8 @@ static void enforce_vmpl0(void)
  * by the guest kernel. As and when a new feature is implemented in the
  * guest kernel, a corresponding bit should be added to the mask.
  */
-#define SNP_FEATURES_PRESENT	MSR_AMD64_SNP_DEBUG_SWAP | MSR_AMD64_SNP_RESTRICTED_INJ
+#define SNP_FEATURES_PRESENT	(MSR_AMD64_SNP_DEBUG_SWAP |		\
+				 MSR_AMD64_SNP_RESTRICTED_INJ)
 
 u64 snp_get_unsupported_features(u64 status)
 {
@@ -475,13 +474,13 @@ void snp_check_features(void)
 	 * as part of the guest boot failure.
 	 */
 	unsupported = snp_get_unsupported_features(sev_status);
-//	if (unsupported) {
-//		if (ghcb_version < 2 || (!boot_ghcb && !early_setup_ghcb()))
-//			sev_es_terminate(SEV_TERM_SET_GEN, GHCB_SNP_UNSUPPORTED);
-//
-//		sev_es_ghcb_terminate(boot_ghcb, SEV_TERM_SET_GEN,
-//				      GHCB_SNP_UNSUPPORTED, unsupported);
-//	}
+	if (unsupported) {
+		if (ghcb_version < 2 || (!boot_ghcb && !early_setup_ghcb()))
+			sev_es_terminate(SEV_TERM_SET_GEN, GHCB_SNP_UNSUPPORTED);
+
+		sev_es_ghcb_terminate(boot_ghcb, SEV_TERM_SET_GEN,
+				      GHCB_SNP_UNSUPPORTED, unsupported);
+	}
 }
 
 /*

@@ -188,7 +188,7 @@ void initialize_identity_maps(void *rmode)
 	 * Now that the required page table mappings are established and a
 	 * GHCB can be used, check for SNP guest/HV feature compatibility.
 	 */
-	snp_check_features();
+	//snp_check_features();
 }
 
 static pte_t *split_large_pmd(struct x86_mapping_info *info,

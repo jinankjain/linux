@@ -409,7 +409,7 @@ asmlinkage __visible void *extract_kernel(void *rmode, unsigned char *output)
 	 * It has to be done before console_init() in order to use
 	 * paravirtualized port I/O operations if needed.
 	 */
-	early_tdx_detect();
+	//early_tdx_detect();
 
 	ghcb_printf("d2\n");
 	console_init();
@@ -461,6 +461,7 @@ asmlinkage __visible void *extract_kernel(void *rmode, unsigned char *output)
 				(unsigned long *)&output,
 				needed_size,
 				&virt_addr);
+	ghcb_printf("d4.1\n");	
 
 	/* Validate memory location choices. */
 	if ((unsigned long)output & (MIN_KERNEL_ALIGN - 1))
@@ -476,6 +477,9 @@ asmlinkage __visible void *extract_kernel(void *rmode, unsigned char *output)
 	if (heap > ((-__PAGE_OFFSET-(128<<20)-1) & 0x7fffffff))
 		error("Destination address too large");
 #endif
+
+	ghcb_printf("d4.2\n");
+
 #ifndef CONFIG_RELOCATABLE
 	if (virt_addr != LOAD_PHYSICAL_ADDR)
 		error("Destination virtual address changed when not relocatable");
@@ -483,11 +487,15 @@ asmlinkage __visible void *extract_kernel(void *rmode, unsigned char *output)
 
 	debug_putstr("\nDecompressing Linux... ");
 
+	ghcb_printf("d4.3\n");
+
 	if (init_unaccepted_memory()) {
 		debug_putstr("Accepting memory... ");
 		accept_memory(__pa(output), __pa(output) + needed_size);
 	}
 
+	ghcb_printf("d4.4\n");
+	
 	entry_offset = decompress_kernel(output, virt_addr, error);
 
 	debug_putstr("done.\nBooting the kernel (entry_offset: 0x");

@@ -587,7 +587,7 @@ static void __init ms_hyperv_init_platform(void)
 	if (!(ms_hyperv.features & HV_ACCESS_TSC_INVARIANT))
 		mark_tsc_unstable("running on Hyper-V");
 
-	if (hv_isolation_type_snp())
+	if (cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
 		hv_sev_init_mem_and_cpu();
 
 	hardlockup_detector_disable();

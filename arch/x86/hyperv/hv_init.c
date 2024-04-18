@@ -601,7 +601,8 @@ skip_hypercall_pg_init:
 	old_setup_percpu_clockev = x86_init.timers.setup_percpu_clockev;
 	x86_init.timers.setup_percpu_clockev = hv_stimer_setup_percpu_clockev;
 
-	hv_apic_init();
+	if (!cc_platform_has(CC_ATTR_GUEST_SEV_SNP))
+		hv_apic_init();
 
 	x86_init.pci.arch_init = hv_pci_init;
 

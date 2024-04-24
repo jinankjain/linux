@@ -1504,9 +1504,9 @@ int vmgexit_hv_doorbell_page(struct ghcb *ghcb, u64 op, u64 pa)
 	//pr_info("ghcb %p.\n", ghcb);
 	struct es_em_ctxt ctxt;
 
-	sev_es_ghcb_hv_call(ghcb, &ctxt, SVM_VMGEXIT_HV_DOORBELL_PAGE, op, pa);
-	pr_info("vector %lx  error %lx \n", ctxt.fi.vector, ctxt.fi.error_code);
-	return 0;
+	return sev_es_ghcb_hv_call(ghcb, &ctxt, SVM_VMGEXIT_HV_DOORBELL_PAGE, op, pa);
+	//pr_info("vector %lx  error %lx \n", ctxt.fi.vector, ctxt.fi.error_code);
+	//return 0;
 }
 
 #ifdef CONFIG_HOTPLUG_CPU

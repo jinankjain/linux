@@ -402,7 +402,7 @@ void __init sev_snp_init_hv_handling(void)
 
 	ghcb = __sev_get_ghcb(&state);
 
-	//sev_snp_setup_hv_doorbell_page(ghcb);
+	sev_snp_setup_hv_doorbell_page(ghcb);
 
 	__sev_put_ghcb(&state);
 

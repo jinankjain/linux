@@ -135,11 +135,11 @@ asmlinkage int vprintk(const char *fmt, va_list args)
 		return vkdb_printf(KDB_MSGSRC_PRINTK, fmt, args);
 #endif
 
-	//if (sev_snp_active())
-
-	va_copy(args2, args);
-	hv_sev_printf(fmt, args2);
-	va_end(args2);
+	if (cc_platform_has(CC_ATTR_GUEST_SEV_SNP)) {
+		va_copy(args2, args);
+		hv_sev_printf(fmt, args2);
+		va_end(args2);
+	}
 
 	/*
 	 * Use the main logbuf even in NMI. But avoid calling console

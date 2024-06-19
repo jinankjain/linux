@@ -854,13 +854,11 @@ void choose_random_location(unsigned long input,
 
 	boot_params->hdr.loadflags |= KASLR_FLAG;
 
-	ghcb_printf("cr1\n");
 	if (IS_ENABLED(CONFIG_X86_32))
 		mem_limit = KERNEL_IMAGE_SIZE;
 	else
 		mem_limit = MAXMEM;
 
-	ghcb_printf("cr2\n");
 	/* Record the various known unsafe memory ranges. */
 	mem_avoid_init(input, input_size, *output);
 
@@ -873,7 +871,6 @@ void choose_random_location(unsigned long input,
 	/* Make sure minimum is aligned. */
 	min_addr = ALIGN(min_addr, CONFIG_PHYSICAL_ALIGN);
 
-	ghcb_printf("cr3\n");
 	/* Walk available memory entries to find a random address. */
 	random_addr = find_random_phys_addr(min_addr, output_size);
 	if (!random_addr) {

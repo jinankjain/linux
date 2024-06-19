@@ -247,12 +247,10 @@ void snp_set_page_shared(unsigned long paddr)
 
 static bool early_setup_ghcb(void)
 {
-	ghcb_printf("es0\n");
 	if (set_page_decrypted((unsigned long)&boot_ghcb_page))
 		return false;
 
 	//return false;
-///	ghcb_printf("es1\n");
 	/* Page is now mapped decrypted, clear it */
 	memset(&boot_ghcb_page, 0, sizeof(boot_ghcb_page));
 
@@ -559,7 +557,6 @@ void sev_enable(struct boot_params *bp)
 		return;
 	}
 
-	ghcb_printf("a2\n");
 	/* Set the SME mask if this is an SEV guest. */
 	boot_rdmsr(MSR_AMD64_SEV, &m);
 	sev_status = m.q;
@@ -572,7 +569,6 @@ void sev_enable(struct boot_params *bp)
 			sev_es_terminate(SEV_TERM_SET_GEN, GHCB_SEV_ES_PROT_UNSUPPORTED);
 	}
 
-	ghcb_printf("a3\n");
 	/*
 	 * SNP is supported in v2 of the GHCB spec which mandates support for HV
 	 * features.
@@ -588,7 +584,6 @@ void sev_enable(struct boot_params *bp)
 		error("SEV-SNP supported indicated by CC blob, but not SEV status MSR.");
 
 	sme_me_mask = BIT_ULL(bitpos);
-	ghcb_printf("a4\n");
 }
 
 /*

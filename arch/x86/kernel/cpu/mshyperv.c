@@ -576,7 +576,7 @@ static void __init ms_hyperv_init_platform(void)
 # endif
 
 	/* Register Hyper-V specific clocksource */
-	hv_init_clocksource();
+	//hv_init_clocksource();
 	hv_vtl_init_platform();
 #endif
 	/*

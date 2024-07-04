@@ -294,14 +294,17 @@ pub fn prep_negotiate_resp(
                     //goto fw_error; ADD LOGIC
                 }
 
-        for i in 0..fw_vercnt {
-            fw_major = fw_version[i] >> 16;
-            fw_minor = fw_version[i] & 0xFFFF;
+        let icversion_data = (*negop).icversion_data.as_slice(((*negop).icframe_vercnt + (*negop).icmsg_vercnt) as usize);
 
-            for j in 0..(*negop).icframe_vercnt {
-                if ((*negop).icversion_data[j].major == fw_major) && ((*negop).icversion_data[j].minor == fw_minor) {
-                    //icframe_major = (*negop).icversion_data.[j].major;
-                    //icframe_minor = (*negop).icversion_data.[j].minor;
+        for i in 0..fw_vercnt as isize {
+            let fw_version_val = unsafe { *fw_version.offset(i) };
+            fw_major = fw_version_val >> 16;
+            fw_minor = fw_version_val & 0xFFFF;
+
+            for j in 0..(*negop).icframe_vercnt as usize {
+                if i32::from(icversion_data[j].major) == fw_major && i32::from(icversion_data[j].minor) == fw_minor {
+                    icframe_major = icversion_data[j].major as u32;
+                    icframe_minor = icversion_data[j].minor as u32;
                     found_match = true;
                     break;
                 }
@@ -317,14 +320,15 @@ pub fn prep_negotiate_resp(
 
         found_match = false;
 
-        for i in 0..srv_vercnt {
-            srv_major = srv_version[i] >> 16;
-            srv_minor = srv_version[i] & 0xFFFF;
+        for i in 0..srv_vercnt as isize {
+            let srv_version_val = unsafe { *srv_version.offset(i) };
+            srv_major = srv_version_val >> 16;
+            srv_minor = srv_version_val & 0xFFFF;
 
-            for j in (*negop).icframe_vercnt..((*negop).icframe_vercnt + (*negop).icmsg_vercnt) {
-                if ((*negop).icversion_data[j].major == srv_major) && ((*negop).icversion_data[j].minor == srv_minor) {
-                    icmsg_major = (*negop).icversion_data[j].major;
-                    icmsg_minor = (*negop).icversion_data[j].minor;
+            for j in ((*negop).icframe_vercnt as usize)..((*negop).icframe_vercnt + (*negop).icmsg_vercnt) as usize {
+                if i32::from(icversion_data[j].major) == srv_major && i32::from(icversion_data[j].minor) == srv_minor {
+                    icmsg_major = icversion_data[j].major as u32;
+                    icmsg_minor = icversion_data[j].minor as u32;
                     found_match = true;
                     break;
                 }
@@ -334,7 +338,7 @@ pub fn prep_negotiate_resp(
             }
         }
 
-        found_match;
+        found_match
     }
 
     // SAFETY: All buffers are valid for the duration of this call due to their lifetimes.

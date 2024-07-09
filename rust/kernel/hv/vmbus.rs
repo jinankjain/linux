@@ -236,7 +236,6 @@ pub fn ring_size(payload_size: usize) -> usize {
 ///
 /// On success, returns the pair of negotiated framework and service versions, and updates `buf`
 /// to hold the response.
-/*
 fn resp_fw_srv_version(negop: *mut bindings::icmsg_negotiate,
                            nego_fw_version: *mut core::ffi::c_int,
                            nego_srv_version: *mut core::ffi::c_int,
@@ -279,16 +278,66 @@ fn resp_fw_srv_version(negop: *mut bindings::icmsg_negotiate,
         found_match
 }
 
-fn vmbus_prep_negotiate_resp(icmsghdrp: *mut bindings::icmsg_hdr,
-                                 buf: *mut u8,
-                                 buflen: u32,
-                                 fw_version: *const core::ffi::c_int,
-                                 fw_vercnt: core::ffi::c_int,
-                                 srv_version: *const core::ffi::c_int,
-                                 srv_vercnt: core::ffi::c_int,
-                                 nego_fw_version: *mut core::ffi::c_int,
-                                 nego_srv_version: *mut core::ffi::c_int
-                                 ) -> bool {
+fn vmbus_prep_negotiate_resp(icmsg_hdr: &mut bindings::icmsg_hdr,
+                                 buf: &mut [u8],
+                                 fw_versions: &[i32],
+                                 srv_versions: &[i32],
+                                 ) -> (bool, i32, i32) {
+
+    let buflen = buf.len();
+    let mut negop: bindings::icmsg_negotiate = Default::default();
+
+    /* Check that there is enough space for icframe_vercnt, icmsg_vercnt */
+    if buflen < super::ICMSG_HDR + offset_of!(bindings::icmsg_negotiate, reserved) {
+        pr_err!("Invalid icmsg negotiate\n");
+        return (false, 0, 0);
+    }
+
+    let mut start = super::ICMSG_HDR;
+    icmsg_hdr.icmsgsize = 0x10;
+    negop.icframe_vercnt = unsafe {
+        let end = start + core::mem::size_of::<u16>();
+        let ptr = buf[start..end].as_ptr() as *const u16;
+        start = end;
+        *ptr
+    };
+    let icframe_major = negop.icframe_vercnt;
+    let icframe_minor = 0;
+
+    negop.icmsg_vercnt = unsafe {
+        let end = start + core::mem::size_of::<u16>();
+        let ptr = buf[start..end].as_ptr() as *const u16;
+        start = end;
+        *ptr
+    };
+    let icmsg_major = negop.icmsg_vercnt;
+    let icmsg_minor = 0;
+
+    pr_info!("icframe_vercnt: {}, icmsg_vercnt: {}", icframe_major, icmsg_major);
+
+    let negotiated_packet_size = super::icmsg_negotiate_pkt_size(icframe_major.into(), icmsg_major.into());
+
+    if icframe_major as u32 > bindings::IC_VERSION_NEGOTIATION_MAX_VER_COUNT || icmsg_major as u32 > bindings::IC_VERSION_NEGOTIATION_MAX_VER_COUNT || negotiated_packet_size > buflen {
+        pr_err!("Invalid icmsg negotiate - icframe_major: {}, icmsg_major: {}", icframe_major, icmsg_major);
+    }
+
+    let mut found_match = false;
+    let mut fw_major = 0;
+    let mut fw_minor = 0;
+    for fw_version in fw_versions {
+        fw_major = fw_version >> 16;
+        fw_minor = fw_version & 0xFFFF;
+    }
+
+    let mut srv_major = 0;
+    let mut srv_minor = 0;
+    for srv_version in srv_versions {
+        srv_major = srv_version >> 16;
+        srv_minor = srv_version & 0xFFFF;
+    }
+
+    return (false, 0, 0);
+/*
         let mut icframe_major: i32;
         let mut icframe_minor: i32;
         let mut icmsg_major: i32;
@@ -402,8 +451,9 @@ fn vmbus_prep_negotiate_resp(icmsghdrp: *mut bindings::icmsg_hdr,
                             icmsg_minor,
                             found_match)
     }
-}
 */
+}
+
 pub fn prep_negotiate_resp(
     buf: &mut [u8],
     fw_versions: &[i32],
@@ -416,19 +466,30 @@ pub fn prep_negotiate_resp(
         return None;
     }
 
+    /* Extract ICMSG HEADER from the buffer */
+    let mut icmsg_hdr: bindings::icmsg_hdr = unsafe {
+        let start = super::BUSPIPE_HDR_SIZE;
+        let end = super::ICMSG_HDR;
+        assert_eq!(buf[start..end].len(), core::mem::size_of::<bindings::icmsg_hdr>());
+        let ptr = buf[start..end].as_ptr() as *const bindings::icmsg_hdr;
+        *ptr
+    };
+
     // SAFETY: All buffers are valid for the duration of this call due to their lifetimes.
-    let res = unsafe {
-        bindings::vmbus_prep_negotiate_resp(
-            buf[super::BUSPIPE_HDR_SIZE..].as_mut_ptr().cast(),
-            buf.as_mut_ptr(),
-            buf.len().try_into().ok()?,
-            fw_versions.as_ptr(),
-            fw_versions.len().try_into().ok()?,
-            srv_versions.as_ptr(),
-            srv_versions.len().try_into().ok()?,
-            &mut fw,
-            &mut srv,
-        )
+    let (res, fw, srv) = unsafe {
+        //bindings::vmbus_prep_negotiate_resp(
+        //    buf[super::BUSPIPE_HDR_SIZE..].as_mut_ptr().cast(),
+        //    buf.as_mut_ptr(),
+        //    buf.len().try_into().ok()?,
+        //    fw_versions.as_ptr(),
+        //    fw_versions.len().try_into().ok()?,
+        //    srv_versions.as_ptr(),
+        //    srv_versions.len().try_into().ok()?,
+        //    &mut fw,
+        //    &mut srv,
+        //)
+        //
+        vmbus_prep_negotiate_resp(&mut icmsg_hdr, buf, fw_versions, srv_versions)
     };
     pr_info!("t-megha This is the fw: {} and this is the srv: {} ", fw, srv);
     pr_info!("t-megha Calling vmbus_prep_negotiate_resp {}", res);

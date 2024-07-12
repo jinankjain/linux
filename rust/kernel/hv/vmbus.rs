@@ -301,8 +301,8 @@ fn vmbus_prep_negotiate_resp(icmsg_hdr: &mut bindings::icmsg_hdr,
         start = end;
         *ptr
     };
-    let icframe_major = negop.icframe_vercnt;
-    let icframe_minor = 0;
+    let mut icframe_major = negop.icframe_vercnt;
+    let mut icframe_minor = 0;
 
     negop.icmsg_vercnt = unsafe {
         let end = start + core::mem::size_of::<u16>();
@@ -310,8 +310,8 @@ fn vmbus_prep_negotiate_resp(icmsg_hdr: &mut bindings::icmsg_hdr,
         start = end;
         *ptr
     };
-    let icmsg_major = negop.icmsg_vercnt;
-    let icmsg_minor = 0;
+    let mut icmsg_major = negop.icmsg_vercnt;
+    let mut icmsg_minor = 0;
 
     pr_info!("icframe_vercnt: {}, icmsg_vercnt: {}", icframe_major, icmsg_major);
 
@@ -321,22 +321,70 @@ fn vmbus_prep_negotiate_resp(icmsg_hdr: &mut bindings::icmsg_hdr,
         pr_err!("Invalid icmsg negotiate - icframe_major: {}, icmsg_major: {}", icframe_major, icmsg_major);
     }
 
+    start += 4;
+    let mut ic_ver_data: Vec<bindings::ic_version> = Vec::try_with_capacity((icframe_major + icmsg_major).into()).unwrap();
+    let ptr = buf[start..].as_ptr() as *const bindings::ic_version;
+    unsafe {
+        for i in 0..(icframe_major + icmsg_major) {
+            ic_ver_data.try_push(ptr.add(i.into()).read()).unwrap()
+        }
+    }
+
+    for i in 0..(icframe_major + icmsg_major).into() {
+        let major = ic_ver_data[i].major;
+        let minor = ic_ver_data[i].minor;
+        pr_info!("jinank: major: {} minor: {}", major, minor);
+    }
+
     let mut found_match = false;
     let mut fw_major = 0;
     let mut fw_minor = 0;
     for fw_version in fw_versions {
         fw_major = fw_version >> 16;
         fw_minor = fw_version & 0xFFFF;
+
+        for j in 0..(icframe_major).into() {
+            let major = ic_ver_data[j].major;
+            let minor = ic_ver_data[j].minor;
+            if i32::from(major) == fw_major && i32::from(minor) == fw_minor {
+                icframe_major = major;
+                icframe_minor = minor;
+                found_match = true;
+                break;
+            }
+        }
     }
+
+pr_info!("Did we find1 match: {}", found_match);
 
     let mut srv_major = 0;
     let mut srv_minor = 0;
+    found_match = false;
     for srv_version in srv_versions {
         srv_major = srv_version >> 16;
         srv_minor = srv_version & 0xFFFF;
+        let start = icframe_major as usize;
+        let end = (icframe_major + icmsg_major) as usize;
+
+        for j in start..end {
+            let major = ic_ver_data[j].major;
+            let minor = ic_ver_data[j].minor;
+            if i32::from(major) == srv_major && i32::from(minor) == srv_minor {
+                icmsg_major = major;
+                icmsg_minor = minor;
+                found_match = true;
+                break;
+            }
+        }
+
     }
 
-    return (false, 0, 0);
+    pr_info!("Did we find match: {}", found_match);
+
+    let neg_fw_version = ((icframe_major as i32) << 16) | icframe_minor as i32;
+    let neg_srv_version = ((icmsg_major as i32) << 16) | icmsg_minor as i32;
+
+    return (true, neg_fw_version, neg_srv_version);
 /*
         let mut icframe_major: i32;
         let mut icframe_minor: i32;
